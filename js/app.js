@@ -1,147 +1,147 @@
 // Main Application Controller
 class App {
-    constructor() {
-        this.mainContent = document.getElementById('mainContent');
-        this.init();
+  constructor() {
+    this.mainContent = document.getElementById('mainContent');
+    this.init();
+  }
+
+  /**
+   * Initialize application
+   */
+  async init() {
+    // Update auth UI
+    authManager.updateAuthUI();
+
+    // Set up routing
+    this.setupRouting();
+
+    // Navigate to home or dashboard based on auth status
+    if (authManager.isAuthenticated()) {
+      if (authManager.isRecruiter()) {
+        this.navigateTo('recruiter-dashboard');
+      } else {
+        this.navigateTo('applicant-dashboard');
+      }
+    } else {
+      this.navigateTo('home');
     }
+  }
 
-    /**
-     * Initialize application
-     */
-    async init() {
-        // Update auth UI
-        authManager.updateAuthUI();
+  /**
+   * Set up client-side routing
+   */
+  setupRouting() {
+    // Handle browser back/forward
+    window.addEventListener('popstate', () => {
+      const route = window.location.hash.slice(1) || 'home';
+      this.loadRoute(route);
+    });
+  }
 
-        // Set up routing
-        this.setupRouting();
+  /**
+   * Navigate to a route
+   * @param {string} route - Route name
+   * @param {object} data - Optional data to pass to route
+   */
+  navigateTo(route, data = {}) {
+    window.location.hash = route;
+    this.loadRoute(route, data);
+  }
 
-        // Navigate to home or dashboard based on auth status
-        if (authManager.isAuthenticated()) {
-            if (authManager.isRecruiter()) {
-                this.navigateTo('recruiter-dashboard');
-            } else {
-                this.navigateTo('applicant-dashboard');
-            }
-        } else {
+  /**
+   * Load route content
+   * @param {string} route - Route name
+   * @param {object} data - Optional data
+   */
+  async loadRoute(route, data = {}) {
+    // Show loading
+    this.mainContent.innerHTML = '';
+    this.mainContent.appendChild(createSpinner());
+
+    try {
+      switch (route) {
+        case 'home':
+          this.renderHome();
+          break;
+
+        case 'recruiter-dashboard':
+          if (!authManager.isRecruiter()) {
             this.navigateTo('home');
-        }
-    }
+            return;
+          }
+          await window.recruiterDashboard.render();
+          break;
 
-    /**
-     * Set up client-side routing
-     */
-    setupRouting() {
-        // Handle browser back/forward
-        window.addEventListener('popstate', () => {
-            const route = window.location.hash.slice(1) || 'home';
-            this.loadRoute(route);
-        });
-    }
+        case 'scenarios':
+          if (!authManager.isRecruiter()) {
+            this.navigateTo('home');
+            return;
+          }
+          await window.recruiterDashboard.renderScenarios();
+          break;
 
-    /**
-     * Navigate to a route
-     * @param {string} route - Route name
-     * @param {object} data - Optional data to pass to route
-     */
-    navigateTo(route, data = {}) {
-        window.location.hash = route;
-        this.loadRoute(route, data);
-    }
+        case 'scenario-builder':
+          if (!authManager.isRecruiter()) {
+            this.navigateTo('home');
+            return;
+          }
+          await window.recruiterDashboard.renderScenarioBuilder(data.scenarioId);
+          break;
 
-    /**
-     * Load route content
-     * @param {string} route - Route name
-     * @param {object} data - Optional data
-     */
-    async loadRoute(route, data = {}) {
-        // Show loading
-        this.mainContent.innerHTML = '';
-        this.mainContent.appendChild(createSpinner());
+        case 'analytics':
+          if (!authManager.isRecruiter()) {
+            this.navigateTo('home');
+            return;
+          }
+          await window.recruiterDashboard.renderAnalytics();
+          break;
 
-        try {
-            switch (route) {
-                case 'home':
-                    this.renderHome();
-                    break;
+        case 'applicant-dashboard':
+          if (!authManager.isApplicant()) {
+            this.navigateTo('home');
+            return;
+          }
+          await window.applicantDashboard.render();
+          break;
 
-                case 'recruiter-dashboard':
-                    if (!authManager.isRecruiter()) {
-                        this.navigateTo('home');
-                        return;
-                    }
-                    await window.recruiterDashboard.render();
-                    break;
+        case 'browse':
+          if (!authManager.isApplicant()) {
+            this.navigateTo('home');
+            return;
+          }
+          await window.applicantDashboard.renderBrowse();
+          break;
 
-                case 'scenarios':
-                    if (!authManager.isRecruiter()) {
-                        this.navigateTo('home');
-                        return;
-                    }
-                    await window.recruiterDashboard.renderScenarios();
-                    break;
+        case 'simulation':
+          if (!authManager.isApplicant()) {
+            this.navigateTo('home');
+            return;
+          }
+          await window.applicantDashboard.renderSimulation(data.scenarioId);
+          break;
 
-                case 'scenario-builder':
-                    if (!authManager.isRecruiter()) {
-                        this.navigateTo('home');
-                        return;
-                    }
-                    await window.recruiterDashboard.renderScenarioBuilder(data.scenarioId);
-                    break;
+        case 'results':
+          if (!authManager.isApplicant()) {
+            this.navigateTo('home');
+            return;
+          }
+          await window.applicantDashboard.renderResults(data.responseId);
+          break;
 
-                case 'analytics':
-                    if (!authManager.isRecruiter()) {
-                        this.navigateTo('home');
-                        return;
-                    }
-                    await window.recruiterDashboard.renderAnalytics();
-                    break;
+        case 'my-results':
+          if (!authManager.isApplicant()) {
+            this.navigateTo('home');
+            return;
+          }
+          await window.applicantDashboard.renderMyResults();
+          break;
 
-                case 'applicant-dashboard':
-                    if (!authManager.isApplicant()) {
-                        this.navigateTo('home');
-                        return;
-                    }
-                    await window.applicantDashboard.render();
-                    break;
-
-                case 'browse':
-                    if (!authManager.isApplicant()) {
-                        this.navigateTo('home');
-                        return;
-                    }
-                    await window.applicantDashboard.renderBrowse();
-                    break;
-
-                case 'simulation':
-                    if (!authManager.isApplicant()) {
-                        this.navigateTo('home');
-                        return;
-                    }
-                    await window.applicantDashboard.renderSimulation(data.scenarioId);
-                    break;
-
-                case 'results':
-                    if (!authManager.isApplicant()) {
-                        this.navigateTo('home');
-                        return;
-                    }
-                    await window.applicantDashboard.renderResults(data.responseId);
-                    break;
-
-                case 'my-results':
-                    if (!authManager.isApplicant()) {
-                        this.navigateTo('home');
-                        return;
-                    }
-                    await window.applicantDashboard.renderMyResults();
-                    break;
-
-                default:
-                    this.renderHome();
-            }
-        } catch (error) {
-            console.error('Route loading error:', error);
-            this.mainContent.innerHTML = `
+        default:
+          this.renderHome();
+      }
+    } catch (error) {
+      console.error('Route loading error:', error);
+      this.mainContent.innerHTML = `
         <div class="glass-card text-center">
           <h2>Error Loading Page</h2>
           <p style="color: var(--text-secondary); margin-top: 1rem;">
@@ -152,18 +152,21 @@ class App {
           </button>
         </div>
       `;
-        }
     }
+  }
 
-    /**
-     * Render home page
-     */
-    renderHome() {
-        this.mainContent.innerHTML = `
+  /**
+   * Render home page
+   */
+  renderHome() {
+    this.mainContent.innerHTML = `
       <div style="text-align: center; padding: 4rem 0;">
         <h1 style="font-size: 3.5rem; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1.5rem;">
-          Welcome to RecruitSim
+          Welcome to Placio
         </h1>
+        <h2 style="font-size: 1.5rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Developed by Madhan,Manoj and Mourya 
+        </h2>
         <p style="font-size: 1.25rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 3rem;">
           AI-powered recruitment simulation platform. Create scenarios, evaluate candidates, and make data-driven hiring decisions.
         </p>
@@ -228,15 +231,15 @@ class App {
         </div>
       </div>
     `;
-    }
+  }
 }
 
 // Set up global navigation
 window.navigateTo = (route, data) => {
-    window.app.navigateTo(route, data);
+  window.app.navigateTo(route, data);
 };
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new App();
+  window.app = new App();
 });

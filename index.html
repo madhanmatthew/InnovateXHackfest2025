@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recruitment Simulation System</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <!-- Navigation -->
   <nav class="navbar">
     <div class="navbar-content">
-      <div class="logo">🎯 RecruitSim</div>
+      <div class="logo">Placio</div>
       <ul class="nav-links" id="navLinks">
         <!-- Dynamic based on role -->
       </ul>
@@ -34,17 +36,17 @@
           <label for="name">Full Name</label>
           <input type="text" id="name" class="input-field" placeholder="John Doe">
         </div>
-        
+
         <div class="input-group">
           <label for="email">Email</label>
           <input type="email" id="email" class="input-field" placeholder="you@example.com" required>
         </div>
-        
+
         <div class="input-group">
           <label for="password">Password</label>
           <input type="password" id="password" class="input-field" placeholder="••••••••" required>
         </div>
-        
+
         <div class="input-group" id="roleGroup" style="display: none;">
           <label for="role">I am a</label>
           <select id="role" class="input-field">
@@ -52,15 +54,16 @@
             <option value="recruiter">Recruiter</option>
           </select>
         </div>
-        
+
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
           <span id="authSubmitText">Login</span>
         </button>
       </form>
-      
+
       <p style="text-align: center; margin-top: 1rem; color: var(--text-secondary);">
         <span id="authSwitchText">Don't have an account?</span>
-        <a href="#" id="authSwitchLink" style="color: var(--primary-1); text-decoration: none; font-weight: 600;">Sign Up</a>
+        <a href="#" id="authSwitchLink" style="color: var(--primary-1); text-decoration: none; font-weight: 600;">Sign
+          Up</a>
       </p>
     </div>
   </div>
@@ -76,4 +79,5 @@
   <script src="js/recruiter.js"></script>
   <script src="js/applicant.js"></script>
 </body>
+
 </html>
