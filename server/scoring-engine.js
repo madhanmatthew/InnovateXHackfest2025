@@ -96,7 +96,7 @@ async function evaluateTextAnswer(question, answer, weight) {
     // Use AI evaluation if available
     if (genAI && userAnswer.length > 10) {
         try {
-            const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+            const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
             const prompt = `
 You are an expert evaluator for recruitment assessments. Evaluate this answer:
@@ -150,7 +150,7 @@ async function evaluateCodingAnswer(question, answer, weight) {
 
     if (genAI && code.length > 10) {
         try {
-            const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+            const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
             const prompt = `
 You are a senior software engineer evaluating a coding assessment.
@@ -252,7 +252,7 @@ async function generateAIEvaluation(questions, answers, scores, totalScore) {
     if (!genAI) return null;
 
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         const prompt = `
 You are a recruitment expert providing feedback on a candidate's assessment.
