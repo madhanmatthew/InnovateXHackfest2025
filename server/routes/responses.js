@@ -15,7 +15,7 @@ router.post('/', authenticateToken, async (req, res) => {
         }
 
         // Get scenario for scoring
-        const scenario = queries.getScenarioById.get(scenarioId);
+        const scenario = queries.getScenarioById(scenarioId);
         if (!scenario) {
             return res.status(404).json({ error: 'Scenario not found' });
         }
@@ -27,7 +27,7 @@ router.post('/', authenticateToken, async (req, res) => {
         const evaluation = await evaluateResponse(questions, answers);
 
         // Store response
-        const result = queries.createResponse.run(
+        const result = queries.createResponse(
             scenarioId,
             req.user.id,
             JSON.stringify(answers),
@@ -52,7 +52,7 @@ router.post('/', authenticateToken, async (req, res) => {
 // Get specific response by ID
 router.get('/:id', authenticateToken, (req, res) => {
     try {
-        const response = queries.getResponseById.get(req.params.id);
+        const response = queries.getResponseById(parseInt(req.params.id));
 
         if (!response) {
             return res.status(404).json({ error: 'Response not found' });
@@ -81,7 +81,7 @@ router.get('/:id', authenticateToken, (req, res) => {
 // Get all responses for a scenario (recruiter only)
 router.get('/scenario/:scenarioId', authenticateToken, requireRecruiter, (req, res) => {
     try {
-        const responses = queries.getResponsesByScenario.all(req.params.scenarioId);
+        const responses = queries.getResponsesByScenario(parseInt(req.params.scenarioId));
 
         // Parse JSON fields
         const parsedResponses = responses.map(r => ({
@@ -112,7 +112,7 @@ router.get('/applicant/:applicantId', authenticateToken, (req, res) => {
             return res.status(403).json({ error: 'Unauthorized' });
         }
 
-        const responses = queries.getResponsesByApplicant.all(req.params.applicantId);
+        const responses = queries.getResponsesByApplicant(parseInt(req.params.applicantId));
 
         // Parse JSON fields
         const parsedResponses = responses.map(r => ({
