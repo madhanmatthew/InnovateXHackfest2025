@@ -9,24 +9,32 @@ router.get('/overview', authenticateToken, requireRecruiter, (req, res) => {
     try {
         const stats = queries.getOverviewStats();
 
-        // Get recent responses (using sql.js exec method)
+        // Get recent responses - return empty array if no data yet
+        let recentResponses = [];
         const { db } = require('../database');
-        const result = db.exec(`
-      SELECT r.*, u.name as applicant_name, s.title as scenario_title
-      FROM responses r
-      LEFT JOIN users u ON r.applicant_id = u.id
-      LEFT JOIN scenarios s ON r.scenario_id = s.id
-      ORDER BY r.submitted_at DESC
-      LIMIT 10
-    `);
 
-        const recentResponses = result.length > 0 ? result[0].values.map(row => {
-            const obj = {};
-            result[0].columns.forEach((col, i) => {
-                obj[col] = row[i];
-            });
-            return obj;
-        }) : [];
+        if (db) {
+            try {
+                const result = db.exec(`
+                    SELECT r.*, u.name as applicant_name, s.title as scenario_title
+                    FROM responses r
+                    LEFT JOIN users u ON r.applicant_id = u.id
+                    LEFT JOIN scenarios s ON r.scenario_id = s.id
+                    ORDER BY r.submitted_at DESC
+                    LIMIT 10
+                `);
+
+                recentResponses = result.length > 0 ? result[0].values.map(row => {
+                    const obj = {};
+                    result[0].columns.forEach((col, i) => {
+                        obj[col] = row[i];
+                    });
+                    return obj;
+                }) : [];
+            } catch (dbError) {
+                console.log('No responses yet in database');
+            }
+        }
 
         res.json({
             stats: {
@@ -101,22 +109,30 @@ router.get('/scenarios/:id', authenticateToken, requireRecruiter, (req, res) => 
 router.get('/performance', authenticateToken, requireRecruiter, (req, res) => {
     try {
         const { db } = require('../database');
-        const result = db.exec(`
-      SELECT 
-        DATE(submitted_at) as date,
-        COUNT(*) as count,
-        AVG(total_score) as avg_score
-      FROM responses
-      WHERE submitted_at >= DATE('now', '-30 days')
-      GROUP BY DATE(submitted_at)
-      ORDER BY date DESC
-    `);
+        let trends = [];
 
-        const trends = result.length > 0 ? result[0].values.map(row => ({
-            date: row[0],
-            count: row[1],
-            avg_score: row[2]
-        })) : [];
+        if (db) {
+            try {
+                const result = db.exec(`
+                    SELECT 
+                        DATE(submitted_at) as date,
+                        COUNT(*) as count,
+                        AVG(total_score) as avg_score
+                    FROM responses
+                    WHERE submitted_at >= DATE('now', '-30 days')
+                    GROUP BY DATE(submitted_at)
+                    ORDER BY date DESC
+                `);
+
+                trends = result.length > 0 ? result[0].values.map(row => ({
+                    date: row[0],
+                    count: row[1],
+                    avg_score: row[2]
+                })) : [];
+            } catch (dbError) {
+                console.log('No trends data available yet');
+            }
+        }
 
         res.json({ trends });
     } catch (error) {
